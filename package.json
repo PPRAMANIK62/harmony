@@ -12,6 +12,7 @@
     "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.2.2",
     "@tailwindcss/vite": "^4.1.6",
     "@tanstack/react-query": "^5.76.0",
     "class-variance-authority": "^0.7.1",
