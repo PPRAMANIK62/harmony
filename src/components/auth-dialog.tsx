@@ -1,4 +1,6 @@
+import { useAuth } from "@/contexts/auth-context";
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import {
@@ -16,17 +18,10 @@ type AuthMode = "login" | "register";
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAuth: (
-    email: string,
-    password: string,
-    name?: string,
-    mode?: AuthMode
-  ) => void;
   mode?: AuthMode;
 };
 
 const AuthDialog = ({
-  onAuth,
   onOpenChange,
   open,
   mode: initialMode = "login",
@@ -37,6 +32,18 @@ const AuthDialog = ({
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const { user, loading, signIn, signUp } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const from = (location.state?.from?.pathname as string) || "/dashboard";
+
+  useEffect(() => {
+    if (user && !loading) {
+      navigate(from, { replace: true });
+    }
+  }, [user, loading, navigate, from]);
+
   // Update mode when initialMode prop changes
   useEffect(() => {
     setMode(initialMode);
@@ -46,7 +53,7 @@ const AuthDialog = ({
     setMode(mode === "login" ? "register" : "login");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!email || !password || (mode === "register" && !name)) {
@@ -56,7 +63,21 @@ const AuthDialog = ({
     setIsLoading(true);
 
     try {
-      onAuth(email, password, name);
+      if (mode === "login") {
+        const { error } = await signIn(email, password);
+        if (error) {
+          throw error;
+        }
+      } else {
+        if (!name) return;
+        const { error } = await signUp(email, password, name);
+        if (error) {
+          throw error;
+        }
+      }
+      toast.success(
+        mode === "login" ? "Welcome back!" : "Registered successfully!"
+      );
     } catch (error) {
       toast.error(`Failed to ${mode === "login" ? "log in" : "register"}`);
       console.error(error);

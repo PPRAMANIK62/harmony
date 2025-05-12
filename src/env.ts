@@ -8,4 +8,4 @@ const envSchema = z.object({
   VITE_SUPABASE_PUBLISHABLE_KEY: z.string(),
 });
 
-export const env = envSchema.parse(process.env);
+export const env = envSchema.parse(import.meta.env);
