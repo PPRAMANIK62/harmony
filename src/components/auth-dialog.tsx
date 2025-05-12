@@ -121,8 +121,8 @@ const AuthDialog = ({
                 ? "Logging in..."
                 : "Registering..."
               : mode === "login"
-              ? "Log In"
-              : "Register"}
+                ? "Log In"
+                : "Register"}
           </Button>
 
           <div className="text-center text-sm">

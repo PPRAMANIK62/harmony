@@ -200,7 +200,8 @@
     @apply w-1 bg-harmony-primary rounded-t-sm;
   }
 
-  .equalizer-bar:nth-child(1) {
+  /* TODO: */
+  /* .equalizer-bar:nth-child(1) {
     @apply animate-equalizer-1;
   }
 
@@ -210,5 +211,5 @@
 
   .equalizer-bar:nth-child(3) {
     @apply animate-equalizer-3;
-  }
+  } */
 }
