@@ -1,11 +1,28 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import AuthDialog from "./auth-dialog";
 import Logo from "./logo";
 import { Button } from "./ui/button";
 
 const Index = () => {
   const navigate = useNavigate();
   const [authDialogOpen, setAuthDialogOpen] = useState<boolean>(false);
+  const [mode, setMode] = useState<"login" | "register">("login");
+
+  const handleAuth = (
+    email: string,
+    password: string,
+    name?: string,
+    mode?: "login" | "register"
+  ) => {
+    // TODO: authentication
+    toast.success(
+      mode === "login" ? "Welcome back!" : "Your account has been created"
+    );
+    setAuthDialogOpen(false);
+    navigate("/dashboard");
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -20,6 +37,7 @@ const Index = () => {
               <Button
                 variant="outline"
                 onClick={() => {
+                  setMode("login");
                   setAuthDialogOpen(true);
                 }}
               >
@@ -27,8 +45,8 @@ const Index = () => {
               </Button>
               <Button
                 onClick={() => {
+                  setMode("register");
                   setAuthDialogOpen(true);
-                  // In a real implementation, we would switch to register mode
                 }}
                 className="text-black font-semibold"
               >
@@ -136,11 +154,12 @@ const Index = () => {
         </div>
       </footer>
 
-      {/* <AuthDialog
+      <AuthDialog
         open={authDialogOpen}
         onOpenChange={setAuthDialogOpen}
         onAuth={handleAuth}
-      /> */}
+        mode={mode}
+      />
     </div>
   );
 };
