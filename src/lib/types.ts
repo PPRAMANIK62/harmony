@@ -8,10 +8,10 @@ export interface User {
 export interface Room {
   id: string;
   name: string;
-  description?: string;
-  cover_image?: string;
+  description: string | null;
+  cover_image: string | null;
   created_by: string;
-  is_private: boolean;
+  is_private: boolean | null;
   created_at: string;
   updated_at: string;
 }
