@@ -5,8 +5,8 @@ import { Music, Plus, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import CreateRoomDialog from "./create-room-dialog";
-import { Button } from "./ui/button";
+import CreateRoomDialog from "../components/create-room-dialog";
+import { Button } from "../components/ui/button";
 import {
   Card,
   CardContent,
@@ -14,8 +14,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "./ui/card";
-import UserProfileButton from "./user-profile-button";
+} from "../components/ui/card";
+import UserProfileButton from "../components/user-profile-button";
 
 const Dashboard = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -51,7 +51,7 @@ const Dashboard = () => {
       if (newRoom) {
         toast.success("Room created successfully");
         setCreateDialogOpen(false);
-        navigate(`/room/${newRoom.id}`);
+        navigate(`/room/${newRoom?.id}`);
       } else {
         toast.error(error);
         throw new Error("Failed to create room");
