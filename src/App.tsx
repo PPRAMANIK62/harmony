@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import ProtectedRoute from "./components/protected-route";
 import { AuthProvider } from "./contexts/auth-context";
 import Index from "./pages";
+import AuthPage from "./pages/auth-page";
 import Dashboard from "./pages/dashboard";
 import NotFound from "./pages/not-found";
 import RoomPage from "./pages/room-page";
@@ -18,6 +19,7 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<AuthPage />} />
             <Route
               path="/dashboard"
               element={
