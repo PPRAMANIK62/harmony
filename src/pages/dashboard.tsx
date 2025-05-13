@@ -23,6 +23,11 @@ const Dashboard = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
 
+  if (!user) {
+    toast.error("Not accessible without authentication");
+    navigate("/auth");
+  }
+
   useEffect(() => {
     const loadRooms = async () => {
       try {

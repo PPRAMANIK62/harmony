@@ -1,17 +1,18 @@
+import RoomHeader from "@/components/room-header";
 import Sidebar from "@/components/sidebar";
-import UserProfileButton from "@/components/user-profile-button";
 import { useAuth } from "@/contexts/auth-context";
-import type { Room, User } from "@/lib/types";
-import { useState } from "react";
+import type { Room } from "@/lib/types";
+import { getRoom, getRooms, joinRoom } from "@/services/rooms";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 const RoomPage = () => {
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
-  const { user, profile, signOut } = useAuth();
+  const { user } = useAuth();
   const [rooms, setRooms] = useState<Room[]>([]);
-  // const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
+  const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
   // const [playlist, setPlaylist] = useState<PlaylistItem[]>([]);
   // const [messages, setMessages] = useState<Message[]>([]);
   // const [members, setMembers] = useState<Profile[]>([]);
@@ -24,12 +25,45 @@ const RoomPage = () => {
 
   // Dialog states
   // const [addSongOpen, setAddSongOpen] = useState(false);
-  // const [shareRoomOpen, setShareRoomOpen] = useState(false);
+  const [shareRoomOpen, setShareRoomOpen] = useState(false);
   const [createRoomOpen, setCreateRoomOpen] = useState(false);
 
   // const audioRef = useRef<HTMLAudioElement | null>(null);
   // const timerRef = useRef<number | null>(null);
   // const isSyncingRef = useRef<boolean>(false);
+
+  // load data on component mount
+  useEffect(() => {
+    if (!roomId || !user) return;
+
+    const loadInitialData = async () => {
+      try {
+        const { room: roomData, error } = await getRoom(roomId);
+        if (error) {
+          toast.error(error);
+          navigate("/dashboard");
+          return;
+        }
+        setCurrentRoom(roomData);
+
+        // Join the room
+        await joinRoom(roomId);
+
+        // Load rooms for sidebar
+        const roomsData = await getRooms();
+        setRooms(roomsData);
+      } catch (error) {
+        console.error("Error loading initial data:", error);
+        toast.error("Failed to load room data");
+      }
+    };
+
+    loadInitialData();
+  }, [roomId, user, navigate]);
+
+  const handleShareRoom = () => {
+    setShareRoomOpen(true);
+  };
 
   return (
     <div className="flex h-screen">
@@ -38,27 +72,7 @@ const RoomPage = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="border-b border-white/10">
-          {/* <RoomHeader room={currentRoom} onShareRoom={handleShareRoom} /> */}
-
-          <div className="absolute top-4 right-4">
-            <UserProfileButton
-              user={
-                user
-                  ? ({
-                      id: user.id,
-                      name: profile?.username || "User",
-                      email: user.email,
-                      avatar: profile?.avatar_url,
-                    } as User)
-                  : null
-              }
-              onLogin={() => navigate("/auth")}
-              onLogout={signOut}
-              onProfile={() => {
-                toast.success("Profile feature coming soon");
-              }}
-            />
-          </div>
+          <RoomHeader room={currentRoom} onShareRoom={handleShareRoom} />
         </header>
 
         {/* Main content */}
