@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 type Props = {
   size?: "sm" | "md" | "lg";
@@ -6,6 +7,7 @@ type Props = {
 };
 
 const Logo = ({ size = "md", className }: Props) => {
+  const navigate = useNavigate();
   const sizeClasses = {
     sm: "text-xl",
     md: "text-2xl",
@@ -13,7 +15,10 @@ const Logo = ({ size = "md", className }: Props) => {
   };
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div
+      className={cn("flex items-center gap-2", className)}
+      onClick={() => navigate("/")}
+    >
       {/* <div className="relative">
         <div className="w-8 h-8 bg-harmony-primary rounded-full flex items-center justify-center">
           <div className="equalizer-bars">

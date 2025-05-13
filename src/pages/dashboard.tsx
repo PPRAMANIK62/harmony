@@ -94,7 +94,7 @@ const Dashboard = () => {
               }
               onLogin={() => navigate("/auth")}
               onLogout={signOut}
-              onProfile={() => navigate("/profile")}
+              onProfile={() => toast.success("Profile feature coming soon")}
             />
           </div>
         </header>

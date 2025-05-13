@@ -2,12 +2,9 @@ import AuthDialog from "@/components/auth-dialog";
 import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const Index = () => {
-  const navigate = useNavigate();
   const [authDialogOpen, setAuthDialogOpen] = useState<boolean>(false);
-  const [mode, setMode] = useState<"login" | "register">("login");
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -19,23 +16,8 @@ const Index = () => {
             <Logo size="md" />
 
             <div className="flex gap-4">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setMode("login");
-                  setAuthDialogOpen(true);
-                }}
-              >
-                Log In
-              </Button>
-              <Button
-                onClick={() => {
-                  setMode("register");
-                  setAuthDialogOpen(true);
-                }}
-                className="text-black font-semibold"
-              >
-                Sign Up
+              <Button variant="outline" onClick={() => setAuthDialogOpen(true)}>
+                Log In with Spotify
               </Button>
             </div>
           </div>
@@ -55,7 +37,7 @@ const Index = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
               <Button
                 size="lg"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => setAuthDialogOpen(true)}
                 className="bg-harmony-primary hover:bg-harmony-primary/90 text-black font-semibold"
               >
                 Get Started
@@ -139,11 +121,7 @@ const Index = () => {
         </div>
       </footer>
 
-      <AuthDialog
-        open={authDialogOpen}
-        onOpenChange={setAuthDialogOpen}
-        mode={mode}
-      />
+      <AuthDialog open={authDialogOpen} onOpenChange={setAuthDialogOpen} />
     </div>
   );
 };

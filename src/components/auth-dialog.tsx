@@ -1,7 +1,7 @@
 import { useAuth } from "@/contexts/auth-context";
 import { cn } from "@/lib/utils";
-import { AtSign, KeyRound, Music, User as UserIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Music } from "lucide-react";
+import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
@@ -12,29 +12,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-
-type AuthMode = "login" | "register";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  mode?: AuthMode;
 };
 
-const AuthDialog = ({
-  onOpenChange,
-  open,
-  mode: initialMode = "login",
-}: Props) => {
-  const [mode, setMode] = useState<AuthMode>(initialMode);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const { user, loading, signIn, signUp } = useAuth();
+const AuthDialog = ({ onOpenChange, open }: Props) => {
+  const { user, loading, connectSpotify, isSpotifyConnected, spotifyLoading } =
+    useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -46,45 +32,12 @@ const AuthDialog = ({
     }
   }, [user, loading, navigate, from]);
 
-  // Update mode when initialMode prop changes
-  useEffect(() => {
-    setMode(initialMode);
-  }, [initialMode]);
-
-  const toggleMode = () => {
-    setMode(mode === "login" ? "register" : "login");
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!email || !password || (mode === "register" && !name)) {
-      toast.error("Please fill in all fields");
-      return;
-    }
-    setIsLoading(true);
-
+  const handleSpotifyConnect = () => {
     try {
-      if (mode === "login") {
-        const { error } = await signIn(email, password);
-        if (error) {
-          throw error;
-        }
-      } else {
-        if (!name) return;
-        const { error } = await signUp(email, password, name);
-        if (error) {
-          throw error;
-        }
-      }
-      toast.success(
-        mode === "login" ? "Welcome back!" : "Registered successfully!"
-      );
+      connectSpotify();
     } catch (error) {
-      toast.error(`Failed to ${mode === "login" ? "log in" : "register"}`);
-      console.error(error);
-    } finally {
-      setIsLoading(false);
+      console.error("Error connecting to Spotify:", error);
+      toast.error("Failed to connect to Spotify");
     }
   };
 
@@ -105,118 +58,54 @@ const AuthDialog = ({
                 <Music className="h-6 w-6 text-harmony-primary" />
               </div>
             </div>
-            <DialogTitle className="text-2xl">
-              {mode === "login" ? "Welcome Back" : "Join Harmony"}
-            </DialogTitle>
+            <DialogTitle className="text-2xl">Welcome to Harmony</DialogTitle>
             <DialogDescription className="text-harmony-gray">
-              {mode === "login"
-                ? "Log in to your account to join rooms and share music"
-                : "Create an account to start sharing music with friends"}
+              Connect with Spotify to start your musical journey
             </DialogDescription>
           </DialogHeader>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          {mode === "register" && (
-            <div className="space-y-2">
-              <Label
-                htmlFor="name"
-                className="text-sm font-medium flex items-center gap-2"
-              >
-                <UserIcon className="h-4 w-4 text-harmony-primary" />
-                Name
-              </Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-                className="bg-black/20 border-harmony-primary/20 focus-visible:border-harmony-primary/50"
-              />
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <Label
-              htmlFor="email"
-              className="text-sm font-medium flex items-center gap-2"
-            >
-              <AtSign className="h-4 w-4 text-harmony-primary" />
-              Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="your.email@example.com"
-              className="bg-black/20 border-harmony-primary/20 focus-visible:border-harmony-primary/50"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label
-              htmlFor="password"
-              className="text-sm font-medium flex items-center gap-2"
-            >
-              <KeyRound className="h-4 w-4 text-harmony-primary" />
-              Password
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="bg-black/20 border-harmony-primary/20 focus-visible:border-harmony-primary/50"
-            />
+        <div className="p-6 space-y-5">
+          <div className="text-center mb-4">
+            <p className="text-harmony-gray">
+              Harmony uses Spotify to provide you with the best music
+              experience. Connect your Spotify account to access your playlists,
+              discover new music, and share with friends.
+            </p>
           </div>
 
           <Button
-            type="submit"
+            type="button"
             className={cn(
-              "w-full mt-6",
-              "bg-gradient-to-r from-harmony-primary to-harmony-accent hover:from-harmony-primary/90 hover:to-harmony-accent/90 text-white font-medium"
+              "w-full flex items-center justify-center gap-2",
+              "bg-[#1DB954] hover:bg-[#1DB954]/90 text-white font-medium"
             )}
-            disabled={isLoading}
+            onClick={handleSpotifyConnect}
+            disabled={spotifyLoading || isSpotifyConnected}
           >
-            {isLoading
-              ? mode === "login"
-                ? "Logging in..."
-                : "Registering..."
-              : mode === "login"
-                ? "Log In"
-                : "Register"}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="white"
+            >
+              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.48.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
+            </svg>
+            {spotifyLoading
+              ? "Connecting to Spotify..."
+              : isSpotifyConnected
+                ? "Connected to Spotify"
+                : "Continue with Spotify"}
           </Button>
 
-          <div className="text-center text-sm pt-2">
-            {mode === "login" ? (
-              <p className="text-harmony-gray">
-                Don't have an account?{" "}
-                <Button
-                  variant="link"
-                  type="button"
-                  onClick={toggleMode}
-                  className="p-0 h-auto text-harmony-primary hover:text-harmony-primary/80"
-                >
-                  Register
-                </Button>
-              </p>
-            ) : (
-              <p className="text-harmony-gray">
-                Already have an account?{" "}
-                <Button
-                  variant="link"
-                  type="button"
-                  onClick={toggleMode}
-                  className="p-0 h-auto text-harmony-primary hover:text-harmony-primary/80"
-                >
-                  Log In
-                </Button>
-              </p>
-            )}
+          <div className="text-center text-sm pt-4">
+            <p className="text-harmony-gray text-xs">
+              By connecting, you agree to our Terms of Service and Privacy
+              Policy. Harmony requires a Spotify account to function properly.
+            </p>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
