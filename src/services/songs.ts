@@ -6,8 +6,7 @@ interface PlaylistResponse {
 }
 
 // export const addSongToRoom = async (
-//   roomId: string,
-//   youtubeUrl: string
+//   roomId: string
 // ): Promise<PlaylistResponse> => {
 //   try {
 //   } catch (error) {

@@ -1,3 +1,5 @@
+import AddSongDialog from "@/components/add-song-dialog";
+import Playlist from "@/components/playlist";
 import RoomHeader from "@/components/room-header";
 import Sidebar from "@/components/sidebar";
 import { useAuth } from "@/contexts/auth-context";
@@ -21,10 +23,10 @@ const RoomPage = () => {
   //   currentTime: 0,
   //   volume: 0.8,
   // });
-  // const [currentSongIndex, setCurrentSongIndex] = useState<number>(-1);
+  const [currentSongIndex, setCurrentSongIndex] = useState<number>(-1);
 
   // Dialog states
-  // const [addSongOpen, setAddSongOpen] = useState(false);
+  const [addSongOpen, setAddSongOpen] = useState(false);
   const [shareRoomOpen, setShareRoomOpen] = useState(false);
   const [createRoomOpen, setCreateRoomOpen] = useState(false);
 
@@ -77,24 +79,24 @@ const RoomPage = () => {
 
         {/* Main content */}
         <div className="flex-1 flex overflow-hidden">
-          {/* <Playlist
-            playlist={{
-              roomId: roomId || "",
-              songs: playlist.map((item) => ({
-                id: item.song_id,
-                title: item.song?.title || "Unknown",
-                artist: item.song?.artist,
-                duration: item.song?.duration || 0,
-                thumbnail: item.song?.thumbnail,
-                added_by: item.song?.added_by || "",
-                youtube_id: item.song?.youtube_id || "",
-                created_at: item.song?.created_at || new Date().toISOString(),
-              })),
-              currentSongIndex,
-            }}
-            onPlaySong={handlePlaySong}
+          <Playlist
+            // playlist={{
+            //   roomId: roomId || "",
+            //   songs: playlist.map((item) => ({
+            //     id: item.song_id,
+            //     title: item.song?.title || "Unknown",
+            //     artist: item.song?.artist,
+            //     duration: item.song?.duration || 0,
+            //     thumbnail: item.song?.thumbnail,
+            //     added_by: item.song?.added_by || "",
+            //     youtube_id: item.song?.youtube_id || "",
+            //     created_at: item.song?.created_at || new Date().toISOString(),
+            //   })),
+            //   currentSongIndex,
+            // }}
+            onPlaySong={() => {}}
             onAddSong={() => setAddSongOpen(true)}
-          /> */}
+          />
 
           {/* <ChatPanel messages={messages} onSendMessage={handleSendMessage} /> */}
         </div>
@@ -124,11 +126,11 @@ const RoomPage = () => {
         /> */}
       </div>
 
-      {/* <AddSongDialog
+      <AddSongDialog
         open={addSongOpen}
         onOpenChange={setAddSongOpen}
-        onAddSong={handleAddSong}
-      /> */}
+        onAddSong={() => {}}
+      />
 
       {/* <ShareRoomDialog
         open={shareRoomOpen}
