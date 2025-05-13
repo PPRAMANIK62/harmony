@@ -1,8 +1,11 @@
 import { useAuth } from "@/contexts/auth-context";
 import type { Room, User } from "@/lib/types";
+import { createRoom, getRooms } from "@/services/rooms";
 import { Music, Plus, Users } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import CreateRoomDialog from "./create-room-dialog";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -19,6 +22,45 @@ const Dashboard = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadRooms = async () => {
+      try {
+        const roomsData = await getRooms();
+        setRooms(roomsData);
+      } catch (error) {
+        console.error("Failed to load rooms:", error);
+        toast.error("Failed to load rooms");
+      }
+    };
+
+    loadRooms();
+  }, []);
+
+  const handleCreateRoom = async (
+    name: string,
+    description: string,
+    isPrivate: boolean
+  ) => {
+    try {
+      const { room: newRoom, error } = await createRoom(
+        name,
+        description,
+        isPrivate
+      );
+      if (newRoom) {
+        toast.success("Room created successfully");
+        setCreateDialogOpen(false);
+        navigate(`/room/${newRoom.id}`);
+      } else {
+        toast.error(error);
+        throw new Error("Failed to create room");
+      }
+    } catch (error) {
+      console.error("Error creating room:", error);
+      toast.error("Failed to create room");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black to-gray-900">
@@ -103,11 +145,11 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* <CreateRoomDialog
+      <CreateRoomDialog
         open={createDialogOpen}
         onOpenChange={setCreateDialogOpen}
         onCreateRoom={handleCreateRoom}
-      /> */}
+      />
     </div>
   );
 };
