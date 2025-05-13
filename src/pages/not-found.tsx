@@ -1,7 +1,7 @@
+import Logo from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import Logo from "./logo";
 
 const NotFound = () => {
   const location = useLocation();
@@ -9,7 +9,7 @@ const NotFound = () => {
   useEffect(() => {
     console.error(
       "404 Error: User attempted to access non-existent route:",
-      location.pathname,
+      location.pathname
     );
   }, [location.pathname]);
 

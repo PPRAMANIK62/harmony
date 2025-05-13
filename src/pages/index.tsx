@@ -1,8 +1,8 @@
+import AuthDialog from "@/components/auth-dialog";
+import Logo from "@/components/logo";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthDialog from "./auth-dialog";
-import Logo from "./logo";
-import { Button } from "./ui/button";
 
 const Index = () => {
   const navigate = useNavigate();
