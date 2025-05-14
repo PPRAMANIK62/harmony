@@ -1,11 +1,10 @@
 import type {
   DbMessage,
   DbPlaybackState,
-  DbPlaylist,
-  DbPlaylistSong,
   DbProfile,
   DbRoom,
   DbRoomMember,
+  DbQueue,
   DbSong,
 } from "./database-types";
 
@@ -46,7 +45,7 @@ export interface RoomMember extends DbRoomMember {
 
 /**
  * Song interface that maps to the songs table in the database.
- * Includes additional fields for when a song is part of a playlist.
+ * Includes additional fields for when a song is part of a queue.
  */
 export interface Song extends DbSong {
   id: string;
@@ -56,33 +55,23 @@ export interface Song extends DbSong {
   thumbnail: string | null;
   spotify_id: string | null; // For Spotify tracks
   spotify_uri: string | null; // For Spotify tracks
-  added_by: string;
   created_at: string;
   // Client-side properties (not in database)
-  playlist_position?: number;
-  playlist_current_position?: number;
+  queue_position?: number;
+  queue_id?: number;
+  added_by?: string;
 }
 
 /**
- * Playlist interface that maps to the playlists table in the database.
+ * Queue interface that maps to the queues table in the database.
  */
-export interface Playlist extends DbPlaylist {
-  id: string;
-  room_id: string;
-  created_at: string | null;
-  updated_at: string | null;
-  current_playing: number | null; // References playlists_songs.id
-}
-
-/**
- * PlaylistSong interface that maps to the playlists_songs table in the database.
- */
-export interface PlaylistSong extends DbPlaylistSong {
+export interface Queue extends DbQueue {
   id: number;
-  playlist_id: string | null;
+  room_id: string | null;
   song_id: string | null;
   order: number | null;
-  created_at: string;
+  played_at: string;
+  aded_by: string | null;
 }
 
 /**
