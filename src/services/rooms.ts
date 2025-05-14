@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import type { DbRoomInsert, DbRoomMemberInsert } from "@/lib/database-types";
 import type { Profile, Room } from "@/lib/types";
 
 interface RoomResponse {
@@ -36,14 +37,16 @@ export const createRoom = async (
     }
 
     // First, create the room
+    const roomData: DbRoomInsert = {
+      name: name.trim(),
+      description: description?.trim() || "",
+      is_private: isPrivate,
+      created_by: userData.user.id,
+    };
+
     const { data, error } = await supabase
       .from("rooms")
-      .insert({
-        name: name.trim(),
-        description: description?.trim() || "",
-        is_private: isPrivate,
-        created_by: userData.user.id,
-      })
+      .insert(roomData)
       .select()
       .single();
 
@@ -52,10 +55,14 @@ export const createRoom = async (
     }
 
     // Now try to add the member with a separate request
-    const { error: memberError } = await supabase.from("room_members").insert({
+    const memberData: DbRoomMemberInsert = {
       room_id: data.id,
       user_id: userData.user.id,
-    });
+    };
+
+    const { error: memberError } = await supabase
+      .from("room_members")
+      .insert(memberData);
 
     if (memberError) {
       // Log the error but don't fail the operation since the room was created
@@ -150,102 +157,6 @@ interface GetRoomResponse {
     | "error";
 }
 
-export const getRoom = async (roomId: string): Promise<GetRoomResponse> => {
-  try {
-    // Input validation
-    if (!roomId?.trim()) {
-      return {
-        room: null,
-        error: "Room ID is required",
-        status: "error",
-      };
-    }
-
-    // Get the current user to check if they're logged in
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData?.user) {
-      return {
-        room: null,
-        error: "Authentication required",
-        status: "error",
-      };
-    }
-
-    // First check if the room is public
-    const { data: publicRoom, error: publicError } = await supabase
-      .from("rooms")
-      .select("*")
-      .eq("id", roomId)
-      .eq("is_private", false)
-      .single();
-
-    if (!publicError && publicRoom) {
-      return {
-        room: publicRoom,
-        error: null,
-        status: "public",
-      };
-    }
-
-    // If not public, check if the user is a member
-    const { error: membershipError } = await supabase
-      .from("room_members")
-      .select("room_id")
-      .eq("room_id", roomId)
-      .eq("user_id", userData.user.id)
-      .single();
-
-    if (!membershipError) {
-      // User is a member, get the room details
-      const { data: memberRoom, error: roomError } = await supabase
-        .from("rooms")
-        .select("*")
-        .eq("id", roomId)
-        .single();
-
-      if (!roomError && memberRoom) {
-        return {
-          room: memberRoom,
-          error: null,
-          status: "private-member",
-        };
-      }
-    }
-
-    // Check if it's a private room created by the user
-    const { data: userRoom, error: userError } = await supabase
-      .from("rooms")
-      .select("*")
-      .eq("id", roomId)
-      .eq("created_by", userData.user.id)
-      .single();
-
-    if (!userError && userRoom) {
-      return {
-        room: userRoom,
-        error: null,
-        status: "private-creator",
-      };
-    }
-
-    // If all attempts fail, return not found
-    return {
-      room: null,
-      error: "Room not found or you don't have access",
-      status: "not-found",
-    };
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred";
-    console.error(`Error getting room ${roomId}:`, errorMessage);
-    return {
-      room: null,
-      error: errorMessage,
-      status: "error",
-    };
-  }
-};
-
 export const joinRoom = async (roomId: string): Promise<Response> => {
   try {
     // Input validation
@@ -300,10 +211,12 @@ export const joinRoom = async (roomId: string): Promise<Response> => {
     }
 
     // Add user to room
-    const { error } = await supabase.from("room_members").insert({
+    const memberData: DbRoomMemberInsert = {
       room_id: roomId,
       user_id: userData.user.id,
-    });
+    };
+
+    const { error } = await supabase.from("room_members").insert(memberData);
 
     if (error) {
       return { success: false, error: `Failed to join room: ${error.message}` };
@@ -452,7 +365,7 @@ export const getRoomMembers = async (
       .select("user_id")
       .eq("room_id", roomId)
       .range(offset, offset + limit - 1)
-      .order("created_at", { ascending: false });
+      .order("joined_at", { ascending: false });
 
     if (memberError) {
       return {
@@ -497,6 +410,102 @@ export const getRoomMembers = async (
       members: [],
       error: errorMessage,
       hasMore: false,
+    };
+  }
+};
+
+export const getRoom = async (roomId: string): Promise<GetRoomResponse> => {
+  try {
+    // Input validation
+    if (!roomId?.trim()) {
+      return {
+        room: null,
+        error: "Room ID is required",
+        status: "error",
+      };
+    }
+
+    // Get the current user to check if they're logged in
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData?.user) {
+      return {
+        room: null,
+        error: "Authentication required",
+        status: "error",
+      };
+    }
+
+    // First check if the room is public
+    const { data: publicRoom, error: publicError } = await supabase
+      .from("rooms")
+      .select("*")
+      .eq("id", roomId)
+      .eq("is_private", false)
+      .single();
+
+    if (!publicError && publicRoom) {
+      return {
+        room: publicRoom,
+        error: null,
+        status: "public",
+      };
+    }
+
+    // If not public, check if the user is a member
+    const { error: membershipError } = await supabase
+      .from("room_members")
+      .select("room_id")
+      .eq("room_id", roomId)
+      .eq("user_id", userData.user.id)
+      .single();
+
+    if (!membershipError) {
+      // User is a member, get the room details
+      const { data: memberRoom, error: roomError } = await supabase
+        .from("rooms")
+        .select("*")
+        .eq("id", roomId)
+        .single();
+
+      if (!roomError && memberRoom) {
+        return {
+          room: memberRoom,
+          error: null,
+          status: "private-member",
+        };
+      }
+    }
+
+    // Check if it's a private room created by the user
+    const { data: userRoom, error: userError } = await supabase
+      .from("rooms")
+      .select("*")
+      .eq("id", roomId)
+      .eq("created_by", userData.user.id)
+      .single();
+
+    if (!userError && userRoom) {
+      return {
+        room: userRoom,
+        error: null,
+        status: "private-creator",
+      };
+    }
+
+    // If all attempts fail, return not found
+    return {
+      room: null,
+      error: "Room not found or you don't have access",
+      status: "not-found",
+    };
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    console.error(`Error getting room ${roomId}:`, errorMessage);
+    return {
+      room: null,
+      error: errorMessage,
+      status: "error",
     };
   }
 };

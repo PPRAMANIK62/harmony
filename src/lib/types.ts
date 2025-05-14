@@ -1,3 +1,18 @@
+import type {
+  DbMessage,
+  DbPlaybackState,
+  DbPlaylist,
+  DbPlaylistSong,
+  DbProfile,
+  DbRoom,
+  DbRoomMember,
+  DbSong,
+} from "./database-types";
+
+/**
+ * User interface representing a user in the application.
+ * This is a client-side representation, not directly mapped to a database table.
+ */
 export interface User {
   id: string;
   name: string;
@@ -5,7 +20,10 @@ export interface User {
   avatar?: string;
 }
 
-export interface Room {
+/**
+ * Room interface that maps to the rooms table in the database.
+ */
+export interface Room extends DbRoom {
   id: string;
   name: string;
   description: string | null;
@@ -16,35 +34,61 @@ export interface Room {
   updated_at: string;
 }
 
-export interface RoomMember {
+/**
+ * RoomMember interface that maps to the room_members table in the database.
+ */
+export interface RoomMember extends DbRoomMember {
   id: string;
   room_id: string;
   user_id: string;
   joined_at: string;
 }
 
-export interface Song {
+/**
+ * Song interface that maps to the songs table in the database.
+ * Includes additional fields for when a song is part of a playlist.
+ */
+export interface Song extends DbSong {
   id: string;
   title: string;
-  artist?: string;
+  artist: string | null;
   duration: number; // in seconds
-  thumbnail?: string;
-  youtube_id: string;
+  thumbnail: string | null;
+  spotify_id: string | null; // For Spotify tracks
+  spotify_uri: string | null; // For Spotify tracks
   added_by: string;
+  created_at: string;
+  // Client-side properties (not in database)
+  playlist_position?: number;
+  playlist_current_position?: number;
+}
+
+/**
+ * Playlist interface that maps to the playlists table in the database.
+ */
+export interface Playlist extends DbPlaylist {
+  id: string;
+  room_id: string;
+  created_at: string | null;
+  updated_at: string | null;
+  current_playing: number | null; // References playlists_songs.id
+}
+
+/**
+ * PlaylistSong interface that maps to the playlists_songs table in the database.
+ */
+export interface PlaylistSong extends DbPlaylistSong {
+  id: number;
+  playlist_id: string | null;
+  song_id: string | null;
+  order: number | null;
   created_at: string;
 }
 
-export interface PlaylistItem {
-  id: string;
-  room_id: string;
-  song_id: string;
-  position: number;
-  added_at: string;
-  // Join with songs table for these fields
-  song?: Song;
-}
-
-export interface Message {
+/**
+ * Message interface that maps to the messages table in the database.
+ */
+export interface Message extends DbMessage {
   id: string;
   room_id: string;
   user_id: string;
@@ -55,32 +99,34 @@ export interface Message {
   user_avatar?: string;
 }
 
-export interface PlaybackState {
+/**
+ * PlaybackState interface that maps to the playback_states table in the database.
+ */
+export interface PlaybackState extends DbPlaybackState {
   room_id: string;
   current_song_id: string | null;
-  is_playing: boolean;
-  current_position: number;
+  is_playing: boolean | null;
+  current_position: number | null;
   updated_at: string;
 }
 
-// Client-side playback state
+/**
+ * Client-side playback state for the music player.
+ * Not directly mapped to a database table.
+ */
 export interface ClientPlaybackState {
   isPlaying: boolean;
   currentTime: number;
   volume: number;
 }
 
-export interface Profile {
+/**
+ * Profile interface that maps to the profiles table in the database.
+ */
+export interface Profile extends DbProfile {
   id: string;
   username: string;
   avatar_url: string | null;
   created_at: string;
   updated_at: string;
-}
-
-// Define a Playlist type for use in components
-export interface Playlist {
-  roomId: string;
-  songs: Array<Song>;
-  currentSongIndex: number;
 }

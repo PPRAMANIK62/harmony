@@ -82,27 +82,34 @@ export type Database = {
       };
       playlists: {
         Row: {
-          added_at: string;
+          created_at: string | null;
+          current_playing: number | null;
           id: string;
-          position: number;
           room_id: string;
-          song_id: string;
+          updated_at: string | null;
         };
         Insert: {
-          added_at?: string;
+          created_at?: string | null;
+          current_playing?: number | null;
           id?: string;
-          position: number;
           room_id: string;
-          song_id: string;
+          updated_at?: string | null;
         };
         Update: {
-          added_at?: string;
+          created_at?: string | null;
+          current_playing?: number | null;
           id?: string;
-          position?: number;
           room_id?: string;
-          song_id?: string;
+          updated_at?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "playlists_current_playing_fkey";
+            columns: ["current_playing"];
+            isOneToOne: false;
+            referencedRelation: "playlists_songs";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "playlists_room_id_fkey";
             columns: ["room_id"];
@@ -110,8 +117,40 @@ export type Database = {
             referencedRelation: "rooms";
             referencedColumns: ["id"];
           },
+        ];
+      };
+      playlists_songs: {
+        Row: {
+          created_at: string;
+          id: number;
+          order: number | null;
+          playlist_id: string | null;
+          song_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: number;
+          order?: number | null;
+          playlist_id?: string | null;
+          song_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: number;
+          order?: number | null;
+          playlist_id?: string | null;
+          song_id?: string | null;
+        };
+        Relationships: [
           {
-            foreignKeyName: "playlists_song_id_fkey";
+            foreignKeyName: "playlists_songs_playlist_id_fkey";
+            columns: ["playlist_id"];
+            isOneToOne: false;
+            referencedRelation: "playlists";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "playlists_songs_song_id_fkey";
             columns: ["song_id"];
             isOneToOne: false;
             referencedRelation: "songs";
@@ -212,9 +251,10 @@ export type Database = {
           created_at: string;
           duration: number;
           id: string;
+          spotify_id: string | null;
+          spotify_uri: string | null;
           thumbnail: string | null;
           title: string;
-          youtube_id: string;
         };
         Insert: {
           added_by: string;
@@ -222,9 +262,10 @@ export type Database = {
           created_at?: string;
           duration: number;
           id?: string;
+          spotify_id?: string | null;
+          spotify_uri?: string | null;
           thumbnail?: string | null;
           title: string;
-          youtube_id: string;
         };
         Update: {
           added_by?: string;
@@ -232,9 +273,10 @@ export type Database = {
           created_at?: string;
           duration?: number;
           id?: string;
+          spotify_id?: string | null;
+          spotify_uri?: string | null;
           thumbnail?: string | null;
           title?: string;
-          youtube_id?: string;
         };
         Relationships: [];
       };

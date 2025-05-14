@@ -1,15 +1,21 @@
-import type { Playlist } from "@/lib/types";
+import type { Playlist, Song } from "@/lib/types";
 import { Plus } from "lucide-react";
 import PlaylistItem from "./playlist-item";
 import { Button } from "./ui/button";
 
+// Extended Playlist type with client-side properties
+interface ClientPlaylist extends Playlist {
+  songs: Song[];
+  currentSongIndex?: number;
+}
+
 type Props = {
-  playlist?: Playlist;
+  playlist?: ClientPlaylist;
   onPlaySong: (index: number) => void;
   onAddSong: () => void;
 };
 
-const PLaylist = ({ playlist, onAddSong, onPlaySong }: Props) => {
+const PlaylistComponent = ({ playlist, onAddSong, onPlaySong }: Props) => {
   if (!playlist) {
     return (
       <div className="p-4 flex-1 flex flex-col items-center justify-center">
@@ -33,12 +39,15 @@ const PLaylist = ({ playlist, onAddSong, onPlaySong }: Props) => {
       </div>
 
       <div className="space-y-1">
-        {playlist.songs.length > 0 ? (
+        {playlist.songs && playlist.songs.length > 0 ? (
           playlist.songs.map((song, index) => (
             <PlaylistItem
               key={song.id}
               song={song}
-              isActive={index === playlist.currentSongIndex}
+              isActive={
+                index ===
+                (playlist.currentSongIndex ?? playlist.current_playing)
+              }
               onPlay={() => onPlaySong(index)}
             />
           ))
@@ -56,4 +65,4 @@ const PLaylist = ({ playlist, onAddSong, onPlaySong }: Props) => {
   );
 };
 
-export default PLaylist;
+export default PlaylistComponent;

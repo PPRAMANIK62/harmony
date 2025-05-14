@@ -1,10 +1,12 @@
 import AddSongDialog from "@/components/add-song-dialog";
-import Playlist from "@/components/playlist";
+import PlaylistComponent from "@/components/playlist";
 import RoomHeader from "@/components/room-header";
 import Sidebar from "@/components/sidebar";
 import { useAuth } from "@/contexts/auth-context";
-import type { Room } from "@/lib/types";
-import { getRoom, getRooms, joinRoom } from "@/services/rooms";
+import type { Profile, Room, Song } from "@/lib/types";
+import { getRoom, getRoomMembers, getRooms, joinRoom } from "@/services/rooms";
+import { addSongToRoom, getPlaylist } from "@/services/songs";
+import type { SpotifyTrack } from "@/services/spotify";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -15,9 +17,9 @@ const RoomPage = () => {
   const { user } = useAuth();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
-  // const [playlist, setPlaylist] = useState<PlaylistItem[]>([]);
+  const [playlist, setPlaylist] = useState<Song[]>([]);
   // const [messages, setMessages] = useState<Message[]>([]);
-  // const [members, setMembers] = useState<Profile[]>([]);
+  const [members, setMembers] = useState<Profile[]>([]);
   // const [playbackState, setPlaybackState] = useState<ClientPlaybackState>({
   //   isPlaying: false,
   //   currentTime: 0,
@@ -54,6 +56,19 @@ const RoomPage = () => {
         // Load rooms for sidebar
         const roomsData = await getRooms();
         setRooms(roomsData);
+
+        // Load playlist
+        const playlistData = await getPlaylist(roomId);
+        setPlaylist(playlistData);
+
+        // Load room members
+        const { members: membersData, error: membersError } =
+          await getRoomMembers(roomId);
+        if (membersError) {
+          toast.error(membersError);
+          return;
+        }
+        setMembers(membersData);
       } catch (error) {
         console.error("Error loading initial data:", error);
         toast.error("Failed to load room data");
@@ -65,6 +80,36 @@ const RoomPage = () => {
 
   const handleShareRoom = () => {
     setShareRoomOpen(true);
+  };
+
+  const handleAddSong = async (trackData: SpotifyTrack) => {
+    if (!roomId) return;
+
+    try {
+      const result = await addSongToRoom(roomId, trackData);
+      if (result.song) {
+        // Refresh the playlist
+        const playlistData = await getPlaylist(roomId);
+        setPlaylist(playlistData || []);
+
+        toast.success(`Added "${result.song.title}" to the playlist`);
+
+        // Send a message to the chat
+        // await sendMessage(
+        //   roomId,
+        //   `Added "${result.song.title}" to the playlist`
+        // );
+      } else if (result.error) {
+        throw new Error(result.error);
+      } else {
+        throw new Error("Failed to add song");
+      }
+    } catch (error) {
+      console.error("Error adding song:", error);
+      toast.error(
+        error instanceof Error ? error.message : "Failed to add song"
+      );
+    }
   };
 
   return (
@@ -79,21 +124,28 @@ const RoomPage = () => {
 
         {/* Main content */}
         <div className="flex-1 flex overflow-hidden">
-          <Playlist
-            // playlist={{
-            //   roomId: roomId || "",
-            //   songs: playlist.map((item) => ({
-            //     id: item.song_id,
-            //     title: item.song?.title || "Unknown",
-            //     artist: item.song?.artist,
-            //     duration: item.song?.duration || 0,
-            //     thumbnail: item.song?.thumbnail,
-            //     added_by: item.song?.added_by || "",
-            //     youtube_id: item.song?.youtube_id || "",
-            //     created_at: item.song?.created_at || new Date().toISOString(),
-            //   })),
-            //   currentSongIndex,
-            // }}
+          <PlaylistComponent
+            playlist={{
+              id: "",
+              room_id: roomId || "",
+              created_at: null,
+              updated_at: null,
+              current_playing: null,
+              songs: playlist.map((item) => ({
+                id: item.id,
+                title: item.title || "Unknown",
+                artist: item.artist,
+                duration: item.duration || 0,
+                thumbnail: item.thumbnail,
+                spotify_id: item.spotify_id,
+                spotify_uri: item.spotify_uri,
+                added_by: item.added_by || "",
+                created_at: item.created_at || new Date().toISOString(),
+                playlist_position: item.playlist_position,
+                playlist_current_position: item.playlist_current_position || 0,
+              })),
+              currentSongIndex,
+            }}
             onPlaySong={() => {}}
             onAddSong={() => setAddSongOpen(true)}
           />
@@ -129,7 +181,7 @@ const RoomPage = () => {
       <AddSongDialog
         open={addSongOpen}
         onOpenChange={setAddSongOpen}
-        onAddSong={() => {}}
+        onAddSong={handleAddSong}
       />
 
       {/* <ShareRoomDialog
