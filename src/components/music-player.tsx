@@ -31,7 +31,7 @@ const MusicPlayer = ({
   onVolumeChange,
   playbackState,
 }: Props) => {
-  const [isSeeking, setIsSeeking] = useState(false);
+  const [, setIsSeeking] = useState(false);
   const [seekPosition, setSeekPosition] = useState(0);
   // const intervalRef = useRef<number | null>(null);
 

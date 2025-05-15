@@ -28,13 +28,13 @@ const RoomPage = () => {
   });
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(-1);
   const [playerReady, setPlayerReady] = useState(false);
-  const [playerState, setPlayerState] =
+  const [, setPlayerState] =
     useState<SpotifyPlayer.SpotifyPlaybackState | null>(null);
 
   // Dialog states
   const [addSongOpen, setAddSongOpen] = useState(false);
 
-  const timerRef = useRef<number | null>(null);
+  // const timerRef = useRef<number | null>(null);
   const playerStateRef = useRef<SpotifyPlayer.SpotifyPlaybackState | null>(
     null
   );
