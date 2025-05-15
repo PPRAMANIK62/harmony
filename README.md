@@ -1,54 +1,97 @@
-# React + TypeScript + Vite
+# Harmony - Listen Together, Anywhere
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Harmony is a web application that allows users to create virtual rooms where they and their friends can enjoy music in perfect sync, chat, and build playlists together.
 
-Currently, two official plugins are available:
+> **Note:** This project is currently in the building stage.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- **Virtual Music Rooms**: Create and join rooms to listen to music with friends
+- **Spotify Integration**: Connect with Spotify to access your playlists and favorite tracks
+- **Synchronized Playback**: Listen to music in perfect sync with everyone in the room
+- **Music Queue Management**: Add songs to the queue and control playback together
+- **User Authentication**: Secure login with Spotify OAuth via Supabase
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- **Frontend**: React 19, TypeScript, Vite
+- **Styling**: Tailwind CSS, shadcn/ui components
+- **State Management**: React Query
+- **Authentication**: Supabase Auth with Spotify OAuth
+- **Music Playback**: Spotify Web Player SDK
+- **Routing**: React Router v7
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher)
+- Bun package manager
+- Spotify Developer Account (for API access)
+- Supabase Account (for authentication and database)
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/harmony-react.git
+   cd harmony-react
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   bun install
+   ```
+
+3. Create a `.env` file in the root directory with the following variables:
+
+   ```
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_SPOTIFY_CLIENT_ID=your_spotify_client_id
+   VITE_SPOTIFY_REDIRECT_URI=your_spotify_redirect_uri_from_supabase
+   ```
+
+4. Start the development server:
+   ```bash
+   bun run dev
+   ```
+
+## Development
+
+- **Development Mode**: `bun run dev`
+- **Build for Production**: `bun run build`
+- **Preview Production Build**: `bun run preview`
+- **Lint Code**: `bun run lint`
+- **Format Code**: `bun run format:write`
+
+## Project Structure
+
+```
+harmony-react/
+├── public/             # Static assets
+├── src/
+│   ├── components/     # Reusable UI components
+│   ├── contexts/       # React contexts (auth, etc.)
+│   ├── lib/            # Utility functions and types
+│   ├── pages/          # Page components
+│   ├── services/       # API and service functions
+│   ├── App.tsx         # Main application component
+│   ├── index.css       # Global styles
+│   └── main.tsx        # Application entry point
+└── ...config files
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Current Status
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+This project is actively under development. Some features may be incomplete or subject to change.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## Acknowledgements
+
+- [Spotify Web API](https://developer.spotify.com/documentation/web-api/)
+- [Supabase](https://supabase.io/)
+- [shadcn/ui](https://ui.shadcn.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Vite](https://vitejs.dev/)
